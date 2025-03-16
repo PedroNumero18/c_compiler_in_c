@@ -1,12 +1,21 @@
 CC = gcc
 CFLAGS = -g -Wall -Werror
-TARGET = 
-SRC = src/$(wildcard*.c)
-OBJ = bin/$(wildcard*.c)
+TARGET = main
+SRC_DIR = src
+BIN_DIR = bin
+LIB_DIR = lib
+SRC = $(wildcard $(SRC_DIR)/*.c)
+OBJ = $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.o,$(SRC))
 
+.PHONY: all clean
 
-ALL: $(TARGET)
+all: $(TARGET)
 
+$(BIN_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-clear:
-	rm -rf $(TARGET)*.o
+$(TARGET): $(OBJ)
+	$(CC) $(CFLAGS) $^ -o $@ -L$(LIB_DIR)
+
+clean:
+	rm -rf $(BIN_DIR)/*.o $(TARGET)
