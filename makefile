@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall -Werror
+CFLAGS = -g -Wall -Wextra -Werror -std=c99
 TARGET = CComp
 SRC_DIR = src
 BIN_DIR = bin
