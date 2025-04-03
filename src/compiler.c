@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "lexeme.h"
+#include "parser.h"
+#include "ast.h"
 
 int main(int argc, char **argv){
     if (argc <1){
@@ -12,13 +14,16 @@ int main(int argc, char **argv){
     printf("le fichier :%s\n", argv[1]);
     
     Lexer *LC = init_lexer(F, argv[1]);
-    Token tk = peek_token(LC);
-    do
+    Parser *parse = init_parser(LC); 
+    ASTNode *as = parse_program(parse);
+    print_ast(as, 10);
+    /*do
     {
-        tk = peek_token(LC);
-        print_token(tk);
+        parse->current_token = peek_token(LC);
+        print_token(parse->current_token);
         advance_token(LC);
-    } while (tk.type!= TOKEN_EOF);    
+    } while (parse->current_token.type!= TOKEN_EOF);    
+    */
     free_lexer(LC);
     return 0;
 }

@@ -645,7 +645,7 @@ const char* token_type_str(TokenType type) {
  
 // Print token for debugging
 void print_token(Token token) {
-     printf("Token{ type=%s, value=\"%s\", line=%d, column=%d }\n",
+     printf("Token{ type = %s, value = \"%s\", line = %d, column = %d }\n",
             token_type_str(token.type),
             token.value,
             token.line,
