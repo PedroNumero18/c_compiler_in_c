@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall -Wextra -Werror -std=c99
+CFLAGS =-Wall -Wextra -Werror -std=c99
 TARGET = CComp
 SRC_DIR = src
 BIN_DIR = bin
@@ -24,6 +24,5 @@ $(TARGET): $(OBJ)
 
 
 clean:
-	rm -rf $(BIN_DIR) $(TARGET) a.out
-	rm *.S 
+	rm -rf *.S $(BIN_DIR) $(TARGET) a.out   
 
