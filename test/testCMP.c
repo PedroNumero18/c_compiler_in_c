@@ -1,9 +1,11 @@
-#include<stdio.h>
 int main () {
     int a = 1;
     int b = 2;
     if (a==b){
-        printf(" a = b\n");
+        a = a+b;
     }
-    return 0;
+    else{
+        a = a-b;
+    } 
+    return a;
 }

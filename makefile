@@ -24,5 +24,6 @@ $(TARGET): $(OBJ)
 
 
 clean:
-	rm -rf $(BIN_DIR) $(TARGET)
+	rm -rf $(BIN_DIR) $(TARGET) a.out
+	rm *.S 
 

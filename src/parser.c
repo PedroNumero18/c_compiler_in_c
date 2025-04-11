@@ -14,7 +14,7 @@
  #include "error.h"
  
  // Initialize parser with a lexer
- Parser* init_parser(Lexer *lexer) {
+Parser* init_parser(Lexer *lexer) {
      Parser *parser = (Parser*)malloc(sizeof(Parser));
      if (!parser) return NULL;
      
@@ -25,32 +25,32 @@
  }
  
  // Free parser resources
- void free_parser(Parser *parser) {
+void free_parser(Parser *parser) {
      if (parser) {
          free(parser);
      }
  }
  
  // Consume current token and advance to next if it matches expected type
- int expect_token(Parser *parser, TokenType type) {
-     if (parser->current_token.type == type) {
-         advance_token(parser->lexer);
-         parser->current_token = peek_token(parser->lexer);
-         return 1;
-     }
+int expect_token(Parser *parser, TokenType type) {
+    if (parser->current_token.type == type) {
+        advance_token(parser->lexer);
+        parser->current_token = peek_token(parser->lexer);
+        return 1;
+    }
      
-     char error_msg[128];
-     snprintf(error_msg, sizeof(error_msg), 
-              "Expected token %s, got %s", 
-              token_type_str(type), 
-              token_type_str(parser->current_token.type));
-     parser_error(parser, error_msg);
-     return 0;
+    char error_msg[128];
+    snprintf(error_msg, sizeof(error_msg), 
+            "Expected token %s, got %s", 
+            token_type_str(type), 
+            token_type_str(parser->current_token.type));
+    parser_error(parser, error_msg);
+    return 0;
  }
  
  // Check if current token matches expected type, but don't consume
- int match_token(Parser *parser, TokenType type) {
-     return parser->current_token.type == type;
+int match_token(Parser *parser, TokenType type) {
+    return parser->current_token.type == type;
  }
  
  // Report parser error
