@@ -57,7 +57,7 @@ make
 Here's an example of how to compile a C file to ARM assembly:
 
 ```
-/scc test/example.c -S -o example_arm.s
+/CComp test/example.c -S -o example_arm.s
 ```
 
 The assembly files can then be assembled and linked using appropriate ARM toolchains (with gcc for example).
