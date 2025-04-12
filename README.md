@@ -28,7 +28,7 @@ The compiler supports:
 ## Command-line Options
 
 ```
-Usage: ./bin/scc input.c [-o output] [-S] [-t=target]
+Usage: ./CComp input.c [-o output] [-S] [-t=target]
   -o output   Specify output filename (default: a.out)
   -S          Generate assembly output instead of executable
 ```
