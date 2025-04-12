@@ -1,11 +1,12 @@
-int main () {
-    int a = 1;
-    int b = 2;
-    if (a==b){
-        a = a+b;
+int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
     }
-    else{
-        a = a-b;
-    } 
-    return a;
+}
+
+int main() {
+    int result = factorial(5);
+    return result;
 }
