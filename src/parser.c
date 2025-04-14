@@ -8,10 +8,10 @@
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
- #include "common.h"
- #include "parser.h"
- #include "ast.h"
- #include "error.h"
+ #include "../Include/common.h"
+ #include "../Include/parser.h"
+ #include "../Include/ast.h"
+ #include "../Include/error.h"
  
  // Initialize parser with a lexer
 Parser* init_parser(Lexer *lexer) {

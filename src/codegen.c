@@ -8,9 +8,9 @@
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
- #include "common.h"
- #include "codegen.h"
- #include "error.h"
+ #include "../Include/common.h"
+ #include "../Include/codegen.h"
+ #include "../Include/error.h"
  
  // Forward declarations for static functions
  static void gen_ir(CodeGenerator *generator, ASTNode *node);

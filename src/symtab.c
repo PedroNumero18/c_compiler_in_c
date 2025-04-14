@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "common.h"
-#include "symtab.h"
+#include "../Include/common.h"
+#include "../Include/symtab.h"
  
 // Simple hash function for strings
  static unsigned int hash(const char *name, int size) {

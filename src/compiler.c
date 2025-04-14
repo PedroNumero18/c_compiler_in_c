@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lexeme.h"
-#include "parser.h"
-#include "codegen.h"
-#include "error.h"
+#include "../Include/lexeme.h"
+#include "../Include/parser.h"
+#include "../Include/codegen.h"
+#include "../Include/error.h"
 
 void print_usage(char *program_name) {
     fprintf(stderr, "Usage: %s input.c [-o output] [-S] [-t=target]\n", program_name);

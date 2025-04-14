@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "error.h"
+#include "../Include/error.h"
  
 // Count of errors encountered
 static int error_count = 0;

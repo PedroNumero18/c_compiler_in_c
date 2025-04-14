@@ -10,9 +10,9 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include "common.h"
-#include "lexeme.h"
-#include "error.h"
+#include "../Include/common.h"
+#include "../Include/lexeme.h"
+#include "../Include/error.h"
  
 #define BUFFER_SIZE 4096
  

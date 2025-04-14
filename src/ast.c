@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ast.h"
+#include "../Include/ast.h"
 
 // Initial capacity for child nodes
 #define INITIAL_CHILDREN_CAPACITY 4
