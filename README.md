@@ -28,7 +28,7 @@ The compiler supports:
 ## Command-line Options
 
 ```
-Usage: ./bin/scc input.c [-o output] [-S] [-t=target]
+Usage: ./CComp input.c [-o output] [-S]
   -o output   Specify output filename (default: a.out)
   -S          Generate assembly output instead of executable
 ```
@@ -57,7 +57,7 @@ make
 Here's an example of how to compile a C file to ARM assembly:
 
 ```
-/scc test/example.c -S -o example_arm.s
+/CComp test/example.c -S -o example_arm.s
 ```
 
 The assembly files can then be assembled and linked using appropriate ARM toolchains (with gcc for example).
