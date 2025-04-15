@@ -822,232 +822,271 @@
  
  // Generate ARM assembly code
  static void generate_arm_asm(FILE *output, IRInst *ir) {
-     if (!output || !ir) return;
-     
-     // Emit assembly header
-     fprintf(output, "# Generated ARM 32-bit assembly code\n");
-     fprintf(output, ".text\n");
-     fprintf(output, ".syntax unified\n");
-     fprintf(output, ".arm\n"); // Use ARM instruction set, not Thumb
-     
-     // Collect information about variables and function parameters
-     // In a real compiler, we'd use the symbol table for this
-     const char *var_names[] = {"n", "a", "b", "i", "result", "x", "y"};
-     int var_count = sizeof(var_names) / sizeof(var_names[0]);
-     
-     // Process IR code
-     for (IRInst *inst = ir; inst; inst = inst->next) {
-         switch (inst->type) {
-             case IR_LABEL:
-                 fprintf(output, "%s:\n", inst->src1.value.string);
-                 break;
-                 
-             case IR_LOAD:
-                 if (inst->src1.type == OP_INTEGER) {
-                     // Load immediate value
-                     fprintf(output, "    mov r%d, #%d\n", 
-                            inst->dest.value.reg % 10, 
-                            inst->src1.value.integer);
-                 } else if (inst->src1.type == OP_VARIABLE) {
-                     // Load from memory
-                     fprintf(output, "    ldr r%d, =%s\n", 
-                            inst->dest.value.reg % 10, 
-                            inst->src1.value.string);
-                     fprintf(output, "    ldr r%d, [r%d]\n", 
-                            inst->dest.value.reg % 10,
-                            inst->dest.value.reg % 10);
-                 }
-                 break;
-                 
-             case IR_STORE:
-                 if (inst->src1.type == OP_REGISTER) {
-                     // Store to memory
-                     fprintf(output, "    ldr r12, =%s\n", inst->dest.value.string);
-                     fprintf(output, "    str r%d, [r12]\n", 
-                            inst->src1.value.reg % 10);
-                 }
-                 break;
-                 
-             case IR_ADD:
-                 fprintf(output, "    add r%d, r%d, r%d\n", 
-                        inst->dest.value.reg % 10,
-                        inst->src1.value.reg % 10, 
-                        inst->src2.value.reg % 10);
-                 break;
-                 
-             case IR_SUB:
-                 fprintf(output, "    sub r%d, r%d, r%d\n", 
-                        inst->dest.value.reg % 10,
-                        inst->src1.value.reg % 10, 
-                        inst->src2.value.reg % 10);
-                 break;
-                 
-             case IR_MUL:
-                 fprintf(output, "    mul r%d, r%d, r%d\n", 
-                        inst->dest.value.reg % 10,
-                        inst->src1.value.reg % 10, 
-                        inst->src2.value.reg % 10);
-                 break;
-                 
-             case IR_DIV:
-                 fprintf(output, "    # Division in ARM requires library calls\n");
-                 fprintf(output, "    # Using simplified DIV for demo\n");
-                 fprintf(output, "    mov r0, r%d\n", inst->src1.value.reg % 10);
-                 fprintf(output, "    mov r1, r%d\n", inst->src2.value.reg % 10);
-                 fprintf(output, "    bl __aeabi_idiv\n");
-                 fprintf(output, "    mov r%d, r0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_MOD:
-                 fprintf(output, "    # Modulo in ARM requires library calls\n");
-                 fprintf(output, "    # Using simplified MOD for demo\n");
-                 fprintf(output, "    mov r0, r%d\n", inst->src1.value.reg % 10);
-                 fprintf(output, "    mov r1, r%d\n", inst->src2.value.reg % 10);
-                 fprintf(output, "    bl __aeabi_idivmod\n");
-                 fprintf(output, "    mov r%d, r1\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_NEG:
-                 fprintf(output, "    rsb r%d, r%d, #0\n", 
-                        inst->dest.value.reg % 10,
-                        inst->src1.value.reg % 10);
-                 break;
-                 
-             case IR_EQ:
-                 fprintf(output, "    cmp r%d, r%d\n", 
-                        inst->src1.value.reg % 10,
-                        inst->src2.value.reg % 10);
-                 fprintf(output, "    moveq r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    movne r%d, #0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_NEQ:
-                 fprintf(output, "    cmp r%d, r%d\n", 
-                        inst->src1.value.reg % 10,
-                        inst->src2.value.reg % 10);
-                 fprintf(output, "    movne r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    moveq r%d, #0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_LT:
-                 fprintf(output, "    cmp r%d, r%d\n", 
-                        inst->src1.value.reg % 10,
-                        inst->src2.value.reg % 10);
-                 fprintf(output, "    movlt r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    movge r%d, #0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_GT:
-                 fprintf(output, "    cmp r%d, r%d\n", 
-                        inst->src1.value.reg % 10,
-                        inst->src2.value.reg % 10);
-                 fprintf(output, "    movgt r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    movle r%d, #0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_LTE:
-                 fprintf(output, "    cmp r%d, r%d\n", 
-                        inst->src1.value.reg % 10,
-                        inst->src2.value.reg % 10);
-                 fprintf(output, "    movle r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    movgt r%d, #0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_GTE:
-                 fprintf(output, "    cmp r%d, r%d\n", 
-                        inst->src1.value.reg % 10,
-                        inst->src2.value.reg % 10);
-                 fprintf(output, "    movge r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    movlt r%d, #0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_JMP:
-                 fprintf(output, "    b %s\n", inst->src1.value.string);
-                 break;
-                 
-             case IR_JMPZ:
-                 fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
-                 fprintf(output, "    beq %s\n", inst->src2.value.string);
-                 break;
-                 
-             case IR_JMPNZ:
-                 fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
-                 fprintf(output, "    bne %s\n", inst->src2.value.string);
-                 break;
-                 
-             case IR_CALL:
-                 fprintf(output, "    bl %s\n", inst->src1.value.string);
-                 fprintf(output, "    mov r%d, r0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             case IR_ARG:
-                 // In ARM EABI, first 4 args in r0-r3, rest on stack
-                 if (inst->dest.value.integer < 4) {
-                     fprintf(output, "    mov r%d, r%d\n", 
-                            inst->dest.value.integer,
-                            inst->src1.value.reg % 10);
-                 } else {
-                     fprintf(output, "    # Stack args not properly implemented\n");
-                     fprintf(output, "    push {r%d}\n", inst->src1.value.reg % 10);
-                 }
-                 break;
-                 
-             case IR_RET:
-                 if (inst->src1.type == OP_REGISTER) {
-                     fprintf(output, "    mov r0, r%d\n", inst->src1.value.reg % 10);
-                 }
-                 fprintf(output, "    bx lr\n");
-                 break;
-                 
-             case IR_ALLOC:
-                 fprintf(output, "    # Variable %s is allocated in data section\n", 
-                        inst->dest.value.string);
-                 break;
-                 
-             case IR_AND:
-                 fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
-                 fprintf(output, "    moveq r%d, #0\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    bne 1f\n");
-                 fprintf(output, "    b 2f\n");
-                 fprintf(output, "1:\n");
-                 fprintf(output, "    cmp r%d, #0\n", inst->src2.value.reg % 10);
-                 fprintf(output, "    movne r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    moveq r%d, #0\n", inst->dest.value.reg % 10);
-                 fprintf(output, "2:\n");
-                 break;
-                 
-             case IR_OR:
-                 fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
-                 fprintf(output, "    movne r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    beq 1f\n");
-                 fprintf(output, "    b 2f\n");
-                 fprintf(output, "1:\n");
-                 fprintf(output, "    cmp r%d, #0\n", inst->src2.value.reg % 10);
-                 fprintf(output, "    movne r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    moveq r%d, #0\n", inst->dest.value.reg % 10);
-                 fprintf(output, "2:\n");
-                 break;
-                 
-             case IR_NOT:
-                 fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
-                 fprintf(output, "    moveq r%d, #1\n", inst->dest.value.reg % 10);
-                 fprintf(output, "    movne r%d, #0\n", inst->dest.value.reg % 10);
-                 break;
-                 
-             default:
-                 fprintf(output, "    # Unimplemented instruction: %d\n", inst->type);
-                 break;
-         }
-     }
-     
-     // Add data section for variables
-     fprintf(output, "\n.data\n");
-     
-     // Define all variables
-     for (int i = 0; i < var_count; i++) {
-         fprintf(output, "%s: .word 0\n", var_names[i]);
-     }
- }
+    if (!output || !ir) return;
+
+    // Emit assembly header
+    fprintf(output, "# Generated ARM 32-bit assembly code\n");
+    fprintf(output, ".text\n");
+    fprintf(output, ".syntax unified\n");
+    fprintf(output, ".arm\n"); // Use ARM instruction set, not Thumb
+    fprintf(output, ".global main\n");
+    // Process IR code
+    for (IRInst *inst = ir; inst; inst = inst->next) {
+        switch (inst->type) {
+            case IR_LABEL:
+                // Check if this is a function label (not a loop/condition label)
+                if (!strstr(inst->src1.value.string, "L")) {
+                    fprintf(output, "\n%s:\n", inst->src1.value.string);
+                    fprintf(output, "    push {lr}\n");
+                } else {
+                    fprintf(output, "%s:\n", inst->src1.value.string);
+                }
+                break;
+
+            case IR_LOAD:
+                if (inst->src1.type == OP_INTEGER) {
+                    // Load immediate value
+                    fprintf(output, "    mov r%d, #%d\n", 
+                           inst->dest.value.reg % 10, 
+                           inst->src1.value.integer);
+                } else if (inst->src1.type == OP_VARIABLE) {
+                    // Load from memory
+                    fprintf(output, "    ldr r%d, =%s\n", 
+                           inst->dest.value.reg % 10, 
+                           inst->src1.value.string);
+                    fprintf(output, "    ldr r%d, [r%d]\n", 
+                           inst->dest.value.reg % 10,
+                           inst->dest.value.reg % 10);
+                }
+                break;
+
+            case IR_STORE:
+                if (inst->src1.type == OP_REGISTER) {
+                    // Store to memory
+                    fprintf(output, "    ldr r12, =%s\n", inst->dest.value.string);
+                    fprintf(output, "    str r%d, [r12]\n", 
+                           inst->src1.value.reg % 10);
+                }
+                break;
+
+            case IR_ADD:
+                fprintf(output, "    add r%d, r%d, r%d\n", 
+                       inst->dest.value.reg % 10,
+                       inst->src1.value.reg % 10, 
+                       inst->src2.value.reg % 10);
+                break;
+
+            case IR_SUB:
+                fprintf(output, "    sub r%d, r%d, r%d\n", 
+                       inst->dest.value.reg % 10,
+                       inst->src1.value.reg % 10, 
+                       inst->src2.value.reg % 10);
+                break;
+
+            case IR_MUL:
+                fprintf(output, "    mul r%d, r%d, r%d\n", 
+                       inst->dest.value.reg % 10,
+                       inst->src1.value.reg % 10, 
+                       inst->src2.value.reg % 10);
+                break;
+
+            case IR_DIV:
+                fprintf(output, "    # Division in ARM requires library calls\n");
+                fprintf(output, "    # Using simplified DIV for demo\n");
+                fprintf(output, "    mov r0, r%d\n", inst->src1.value.reg % 10);
+                fprintf(output, "    mov r1, r%d\n", inst->src2.value.reg % 10);
+                fprintf(output, "    bl __aeabi_idiv\n");
+                fprintf(output, "    mov r%d, r0\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_MOD:
+                fprintf(output, "    # Modulo in ARM requires library calls\n");
+                fprintf(output, "    # Using simplified MOD for demo\n");
+                fprintf(output, "    mov r0, r%d\n", inst->src1.value.reg % 10);
+                fprintf(output, "    mov r1, r%d\n", inst->src2.value.reg % 10);
+                fprintf(output, "    bl __aeabi_idivmod\n");
+                fprintf(output, "    mov r%d, r1\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_NEG:
+                fprintf(output, "    rsb r%d, r%d, #0\n", 
+                       inst->dest.value.reg % 10,
+                       inst->src1.value.reg % 10);
+                break;
+
+            case IR_EQ:
+                fprintf(output, "    cmp r%d, r%d\n", 
+                       inst->src1.value.reg % 10,
+                       inst->src2.value.reg % 10);
+                fprintf(output, "    moveq r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    movne r%d, #0\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_NEQ:
+                fprintf(output, "    cmp r%d, r%d\n", 
+                       inst->src1.value.reg % 10,
+                       inst->src2.value.reg % 10);
+                fprintf(output, "    movne r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    moveq r%d, #0\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_LT:
+                fprintf(output, "    cmp r%d, r%d\n", 
+                       inst->src1.value.reg % 10,
+                       inst->src2.value.reg % 10);
+                fprintf(output, "    movlt r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    movge r%d, #0\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_GT:
+                fprintf(output, "    cmp r%d, r%d\n", 
+                       inst->src1.value.reg % 10,
+                       inst->src2.value.reg % 10);
+                fprintf(output, "    movgt r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    movle r%d, #0\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_LTE:
+                fprintf(output, "    cmp r%d, r%d\n", 
+                       inst->src1.value.reg % 10,
+                       inst->src2.value.reg % 10);
+                fprintf(output, "    movle r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    movgt r%d, #0\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_GTE:
+                fprintf(output, "    cmp r%d, r%d\n", 
+                       inst->src1.value.reg % 10,
+                       inst->src2.value.reg % 10);
+                fprintf(output, "    movge r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    movlt r%d, #0\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_JMP:
+                fprintf(output, "    b %s\n", inst->src1.value.string);
+                break;
+
+            case IR_JMPZ:
+                fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
+                fprintf(output, "    beq %s\n", inst->src2.value.string);
+                break;
+
+            case IR_JMPNZ:
+                fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
+                fprintf(output, "    bne %s\n", inst->src2.value.string);
+                break;
+
+            case IR_CALL:
+                fprintf(output, "    bl %s\n", inst->src1.value.string);
+                fprintf(output, "    mov r%d, r0\n", inst->dest.value.reg % 10);
+                break;
+
+            case IR_ARG:
+                // In ARM EABI, first 4 args in r0-r3, rest on stack
+                if (inst->dest.value.integer < 4) {
+                    fprintf(output, "    mov r%d, r%d\n", 
+                           inst->dest.value.integer,
+                           inst->src1.value.reg % 10);
+                } else {
+                    fprintf(output, "    # Stack args not properly implemented\n");
+                    fprintf(output, "    push {r%d}\n", inst->src1.value.reg % 10);
+                }
+                break;
+
+            case IR_RET:
+                if (inst->src1.type == OP_REGISTER) {
+                    fprintf(output, "    mov r0, r%d\n", inst->src1.value.reg % 10);
+                }
+                fprintf(output, "    pop {lr}\n");
+                fprintf(output, "    bx lr\n");
+                break;
+
+            case IR_ALLOC:
+                fprintf(output, "    # Variable %s is allocated in data section\n", 
+                       inst->dest.value.string);
+                break;
+
+            case IR_AND:
+                fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
+                fprintf(output, "    moveq r%d, #0\n", inst->dest.value.reg % 10);
+                fprintf(output, "    bne 1f\n");
+                fprintf(output, "    b 2f\n");
+                fprintf(output, "1:\n");
+                fprintf(output, "    cmp r%d, #0\n", inst->src2.value.reg % 10);
+                fprintf(output, "    movne r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    moveq r%d, #0\n", inst->dest.value.reg % 10);
+                fprintf(output, "2:\n");
+                break;
+
+            case IR_OR:
+                fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
+                fprintf(output, "    movne r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    beq 1f\n");
+                fprintf(output, "    b 2f\n");
+                fprintf(output, "1:\n");
+                fprintf(output, "    cmp r%d, #0\n", inst->src2.value.reg % 10);
+                fprintf(output, "    movne r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    moveq r%d, #0\n", inst->dest.value.reg % 10);
+                fprintf(output, "2:\n");
+                break;
+
+            case IR_NOT:
+                fprintf(output, "    cmp r%d, #0\n", inst->src1.value.reg % 10);
+                fprintf(output, "    moveq r%d, #1\n", inst->dest.value.reg % 10);
+                fprintf(output, "    movne r%d, #0\n", inst->dest.value.reg % 10);
+                break;
+
+            default:
+                fprintf(output, "    # Unimplemented instruction: %d\n", inst->type);
+                break;
+        }
+    }
+
+    // Add data section for variables
+    fprintf(output, "\n.data\n");
+    fprintf(output, ".align 4\n");
+
+    // Keep track of variables we've already declared
+    char* declared_vars[1024] = {0};
+    int declared_count = 0;
+
+    // Only declare each variable once
+    for (IRInst *inst = ir; inst; inst = inst->next) {
+        // Check both source and destination operands for variables
+        IROperand operands[] = {inst->dest, inst->src1, inst->src2};
+
+        for (int i = 0; i < 3; i++) {
+            if (operands[i].type == OP_VARIABLE) {
+                char *var_name = operands[i].value.string;
+
+                // Skip local variables (those with special characters)
+                if (strchr(var_name, '.') || strchr(var_name, '$')) {
+                    continue;
+                }
+
+                // Check if we've already declared this variable
+                int already_declared = 0;
+                for (int j = 0; j < declared_count; j++) {
+                    if (declared_vars[j] && strcmp(declared_vars[j], var_name) == 0) {
+                        already_declared = 1;
+                        break;
+                    }
+                }
+
+                // If not declared yet, declare it
+                if (!already_declared && declared_count < 1024) {
+                    fprintf(output, "%s: .word 0\n", var_name);
+                    declared_vars[declared_count++] = strdup(var_name);
+                }
+            }
+        }
+    }
+
+    // Clean up
+    for (int i = 0; i < declared_count; i++) {
+        free(declared_vars[i]);
+    }
+}
  
 // Main entry point for code generation
  int generate_code(ASTNode *ast, FILE *output, int generate_assembly) {
@@ -1075,8 +1114,7 @@
      // Generate target code
      int success = 0;
      if (generate_assembly) {
-         // Print the IR as assembly
-         print_ir(output, generator->ir_head);
+
          // Generate ARM assembly
          generate_arm_asm(output, generator->ir_head);
          success = 1;
