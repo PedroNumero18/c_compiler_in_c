@@ -1,28 +1,32 @@
-CC = gcc
-CFLAGS =-Wall -Wextra -Werror -std=c99
-TARGET = CComp
 SRC_DIR = src
 OBJ_DIR = obj
+INCLUDE_DIR = Include
+
+CC = gcc
+CFLAGS =-Wall -Wextra -Werror -std=c99 -I$(INCLUDE_DIR)
+TARGET = CComp
 SRC = $(wildcard $(SRC_DIR)/*.c)
 OBJ = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
 
-.PHONY: all clean
+.PHONY: all clean debug distclean
 
 all: $(TARGET)
 
-# Création du répertoire bin avant la compilation
+debug: CFLAGS += -g
+debug: $(TARGET)
+
 $(OBJ_DIR):
 	mkdir -p $@
 
-# Règle de compilation avec dépendance sur le répertoire bin
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Édition de liens
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
+distclean:
+	rm -rf *.S $(OBJ_DIR) $(TARGET) a.out  *.s *.asm
 
 clean:
-	rm -rf *.S $(OBJ_DIR) $(TARGET) a.out   
+	rm -rf *.S $(TARGET) a.out  
 

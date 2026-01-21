@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../Include/ast.h"
+#include "ast.h"
 
 // Initial capacity for child nodes
 #define INITIAL_CHILDREN_CAPACITY 4
@@ -98,7 +98,6 @@ ASTNode* create_ast_node(ASTNodeType type) {
             break;
         
         default:
-            // Other node types don't need special initialization
             break;
     }
     
@@ -178,7 +177,6 @@ void free_ast(ASTNode *node) {
             break;
         
         default:
-            // Other node types don't have pointers to free
             break;
     }
     
@@ -208,7 +206,7 @@ void add_child(ASTNode *parent, ASTNode *child) {
 }
 
 // Get string representation of data type
-static const char* data_type_str(DataType type) {
+ const char* data_type_str(DataType type) {
     switch (type) {
         case TYPE_VOID: return "void";
         case TYPE_INT: return "int";
@@ -218,7 +216,7 @@ static const char* data_type_str(DataType type) {
 }
 
 // Get string representation of binary operator
-static const char* binary_op_str(BinaryOp op) {
+ const char* binary_op_str(BinaryOp op) {
     switch (op) {
         case OP_ADD: return "+";
         case OP_SUBTRACT: return "-";
@@ -243,7 +241,7 @@ static const char* binary_op_str(BinaryOp op) {
 }
 
 // Get string representation of unary operator
-static const char* unary_op_str(UnaryOp op) {
+ const char* unary_op_str(UnaryOp op) {
     switch (op) {
         case OP_NEGATE: return "-";
         case OP_NOT: return "!";
@@ -257,7 +255,7 @@ static const char* unary_op_str(UnaryOp op) {
 }
 
 // Print indentation for AST visualization
-static void print_indent(int indent) {
+ void print_indent(int indent) {
     for (int i = 0; i < indent; i++) {
         printf("  ");
     }

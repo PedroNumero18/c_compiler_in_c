@@ -8,19 +8,19 @@
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
- #include "../Include/common.h"
- #include "../Include/codegen.h"
- #include "../Include/error.h"
+ #include "common.h"
+ #include "codegen.h"
+ #include "error.h"
  
- // Forward declarations for static functions
- static void gen_ir(CodeGenerator *generator, ASTNode *node);
- static int gen_expr(CodeGenerator *generator, ASTNode *node);
- static void gen_if_stmt(CodeGenerator *generator, ASTNode *node);
- static void gen_while_stmt(CodeGenerator *generator, ASTNode *node);
- static void gen_return_stmt(CodeGenerator *generator, ASTNode *node);
- static void gen_variable_decl(CodeGenerator *generator, ASTNode *node);
- static void gen_function(CodeGenerator *generator, ASTNode *node);
- static void generate_arm_asm(FILE *output, IRInst *ir);
+ // Forward declarations for  functions
+  void gen_ir(CodeGenerator *generator, ASTNode *node);
+  int gen_expr(CodeGenerator *generator, ASTNode *node);
+  void gen_if_stmt(CodeGenerator *generator, ASTNode *node);
+  void gen_while_stmt(CodeGenerator *generator, ASTNode *node);
+  void gen_return_stmt(CodeGenerator *generator, ASTNode *node);
+  void gen_variable_decl(CodeGenerator *generator, ASTNode *node);
+  void gen_function(CodeGenerator *generator, ASTNode *node);
+  void generate_arm_asm(FILE *output, IRInst *ir);
  
  // Implementation of the function declared in codegen.h
  IRInst* generate_ir(CodeGenerator *generator, ASTNode *ast) {
@@ -34,7 +34,7 @@
  }
  
  // Generate code for a node in the AST - Helper function
- static void gen_ir(CodeGenerator *generator, ASTNode *node) {
+  void gen_ir(CodeGenerator *generator, ASTNode *node) {
      if (!generator || !node) return;
      
      switch (node->type) {
@@ -121,7 +121,7 @@
  }
  
  // Add a new IR instruction to the list
- static IRInst* add_ir_inst(CodeGenerator *generator, IRType type) {
+  IRInst* add_ir_inst(CodeGenerator *generator, IRType type) {
      IRInst *inst = (IRInst*)malloc(sizeof(IRInst));
      if (!inst) return NULL;
      
@@ -145,7 +145,7 @@
  }
  
  // Generate a new unique label
- static char* new_label(CodeGenerator *generator) {
+  char* new_label(CodeGenerator *generator) {
      char *label = (char*)malloc(32);
      if (!label) return NULL;
      
@@ -154,12 +154,12 @@
  }
  
  // Generate a new temporary register
- static int new_temp_reg(CodeGenerator *generator) {
+  int new_temp_reg(CodeGenerator *generator) {
      return generator->temp_reg_count++;
  }
  
  // Create an integer operand
- static IROperand make_int_operand(int value) {
+  IROperand make_int_operand(int value) {
      IROperand op;
      op.type = OP_INTEGER;
      op.value.integer = value;
@@ -167,7 +167,7 @@
  }
  
  // Create a string operand
- static IROperand make_string_operand(const char *value) {
+  IROperand make_string_operand(const char *value) {
      IROperand op;
      op.type = OP_STRING;
      op.value.string = strdup(value);
@@ -175,7 +175,7 @@
  }
  
  // Create a variable operand
- static IROperand make_var_operand(const char *name) {
+  IROperand make_var_operand(const char *name) {
      IROperand op;
      op.type = OP_VARIABLE;
      op.value.string = strdup(name);
@@ -183,7 +183,7 @@
  }
  
  // Create a label operand
- static IROperand make_label_operand(const char *label) {
+  IROperand make_label_operand(const char *label) {
      IROperand op;
      op.type = OP_LABEL;
      op.value.string = strdup(label);
@@ -191,7 +191,7 @@
  }
  
  // Create a register operand
- static IROperand make_reg_operand(int reg) {
+  IROperand make_reg_operand(int reg) {
      IROperand op;
      op.type = OP_REGISTER;
      op.value.reg = reg;
@@ -199,7 +199,7 @@
  }
  
  // Generate code to evaluate an expression (returns register holding result)
- static int gen_expr(CodeGenerator *generator, ASTNode *node) {
+  int gen_expr(CodeGenerator *generator, ASTNode *node) {
      if (!node) return -1;
      
      int result_reg = -1;
@@ -413,7 +413,7 @@
  }
  
  // Generate code for an if statement
- static void gen_if_stmt(CodeGenerator *generator, ASTNode *node) {
+  void gen_if_stmt(CodeGenerator *generator, ASTNode *node) {
      if (!node || node->type != AST_IF_STMT) return;
      
      char *else_label = new_label(generator);
@@ -458,7 +458,7 @@
  }
  
  // Generate code for a while statement
- static void gen_while_stmt(CodeGenerator *generator, ASTNode *node) {
+  void gen_while_stmt(CodeGenerator *generator, ASTNode *node) {
      if (!node || node->type != AST_WHILE_STMT) return;
      
      char *start_label = new_label(generator);
@@ -498,7 +498,7 @@
  }
  
  // Generate code for a return statement
- static void gen_return_stmt(CodeGenerator *generator, ASTNode *node) {
+  void gen_return_stmt(CodeGenerator *generator, ASTNode *node) {
      if (!node || node->type != AST_RETURN_STMT) return;
      
      // Generate expression code if return has a value
@@ -519,7 +519,7 @@
  }
  
  // Generate code for a variable declaration
- static void gen_variable_decl(CodeGenerator *generator, ASTNode *node) {
+  void gen_variable_decl(CodeGenerator *generator, ASTNode *node) {
      if (!node || node->type != AST_VARIABLE_DECL) return;
      
      const char *var_name = node->data.variable_decl.name;
@@ -544,7 +544,7 @@
  }
  
  // Generate code for a function
- static void gen_function(CodeGenerator *generator, ASTNode *node) {
+  void gen_function(CodeGenerator *generator, ASTNode *node) {
      if (!node || node->type != AST_FUNCTION) return;
      
      const char *func_name = node->data.function.name;
@@ -560,7 +560,7 @@
  }
  
  // Print IR instruction as text
- static void print_ir_inst(FILE *output, IRInst *inst) {
+  void print_ir_inst(FILE *output, IRInst *inst) {
      if (!output || !inst) return;
      
      // Helper function to print an operand
@@ -821,7 +821,7 @@
  }
  
  // Generate ARM assembly code
- static void generate_arm_asm(FILE *output, IRInst *ir) {
+  void generate_arm_asm(FILE *output, IRInst *ir) {
     if (!output || !ir) return;
 
     // Emit assembly header

@@ -8,11 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../Include/common.h"
-#include "../Include/symtab.h"
+#include "common.h"
+#include "symtab.h"
  
 // Simple hash function for strings
- static unsigned int hash(const char *name, int size) {
+  unsigned int hash(const char *name, int size) {
      unsigned int hash_val = 0;
      while (*name) {
          hash_val = hash_val * 31 + *name++;
@@ -156,7 +156,7 @@
  }
  
 // Get string representation of symbol type
- static const char* symbol_type_str(SymbolType type) {
+  const char* symbol_type_str(SymbolType type) {
      switch (type) {
          case SYMBOL_VARIABLE: return "variable";
          case SYMBOL_FUNCTION: return "function";
@@ -166,7 +166,7 @@
  }
  
 // Get string representation of data type
- static const char* data_type_str(DataType type) {
+  const char* data_type_str(DataType type) {
      switch (type) {
          case TYPE_VOID: return "void";
          case TYPE_INT: return "int";

@@ -7,10 +7,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../Include/error.h"
+#include "error.h"
  
 // Count of errors encountered
-static int error_count = 0;
+ int error_count = 0;
  
 // Report an error without location information
 void error_report(const char *filename, const char *message) {

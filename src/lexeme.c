@@ -10,9 +10,9 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include "../Include/common.h"
-#include "../Include/lexeme.h"
-#include "../Include/error.h"
+#include "common.h"
+#include "lexeme.h"
+#include "error.h"
  
 #define BUFFER_SIZE 4096
  
@@ -31,7 +31,6 @@ Lexer* init_lexer(FILE *file, char *filename) {
         return NULL;
     }
     
-    // Validate file and buffer
     if (!file || !lexer->buffer) {
         free(lexer->filename);
         free(lexer->buffer);
@@ -39,16 +38,14 @@ Lexer* init_lexer(FILE *file, char *filename) {
         return NULL;
     }
 
-    // Read initial buffer
     size_t bytes_read = fread(lexer->buffer, 1, lexer->buffer_size, file);
-    assert(lexer->buffer_size >= 0); // Ensure non-negative first
-    if (bytes_read < (size_t)lexer->buffer_size){lexer->buffer[bytes_read] = '\0';} // Ensure null termination
+    assert(lexer->buffer_size >= 0);
+    if (bytes_read < (size_t)lexer->buffer_size){lexer->buffer[bytes_read] = '\0';} 
      
     lexer->position = 0;
     lexer->line = 1;
     lexer->column = 1;
      
-    // Initialize with first token
     lexer->current.type = TOKEN_ERROR;
     lexer->current.value = NULL;
     advance_token(lexer);
@@ -69,7 +66,7 @@ void free_lexer(Lexer *lexer) {
  }
  
 // Reload buffer with more file data
-static int reload_buffer(Lexer *lexer) {
+int reload_buffer(Lexer *lexer) {
     // If we're at the end of the file, nothing to reload
     if (feof(lexer->file)) return 0;
      
@@ -83,7 +80,7 @@ static int reload_buffer(Lexer *lexer) {
 }
  
 // Get current character
-static char current_char(Lexer *lexer) {
+char current_char(Lexer *lexer) {
      if (lexer->position >= lexer->buffer_size) {
          if (!reload_buffer(lexer)) {
              return '\0';  // EOF
@@ -94,7 +91,7 @@ static char current_char(Lexer *lexer) {
  }
  
 // Advance to next character
-static void advance_char(Lexer *lexer) {
+void advance_char(Lexer *lexer) {
      if (current_char(lexer) == '\n') {
          lexer->line++;
          lexer->column = 1;
@@ -106,7 +103,7 @@ static void advance_char(Lexer *lexer) {
  }
  
 // Peek at next character without advancing
-static char peek_char(Lexer *lexer) {
+ char peek_char(Lexer *lexer) {
      if (lexer->position + 1 >= lexer->buffer_size) {
          return '\0';  // Can't peek beyond buffer
      }
@@ -115,31 +112,31 @@ static char peek_char(Lexer *lexer) {
  }
  
 // Skip whitespace
-static void skip_whitespace(Lexer *lexer) {
+ void skip_whitespace(Lexer *lexer) {
      while (isspace(current_char(lexer))) {
          advance_char(lexer);
      }
  }
  
 // Skip comments
-static void skip_comments(Lexer *lexer) {
+ void skip_comments(Lexer *lexer) {
      // Single-line comment
      if (current_char(lexer) == '/' && peek_char(lexer) == '/') {
          // Skip until end of line
-         advance_char(lexer);  // Skip first '/'
-         advance_char(lexer);  // Skip second '/'
+         advance_char(lexer);  
+         advance_char(lexer); 
          
          while (current_char(lexer) != '\n' && current_char(lexer) != '\0') {
              advance_char(lexer);
          }
          if (current_char(lexer) == '\n') {
-             advance_char(lexer);  // Skip newline
+             advance_char(lexer); 
          }
      }
      // Multi-line comment
      else if (current_char(lexer) == '/' && peek_char(lexer) == '*') {
-         advance_char(lexer);  // Skip '/'
-         advance_char(lexer);  // Skip '*'
+         advance_char(lexer); 
+         advance_char(lexer); 
          
          while (!(current_char(lexer) == '*' && peek_char(lexer) == '/') && 
                 current_char(lexer) != '\0') {
@@ -147,8 +144,8 @@ static void skip_comments(Lexer *lexer) {
          }
          
          if (current_char(lexer) != '\0') {
-             advance_char(lexer);  // Skip '*'
-             advance_char(lexer);  // Skip '/'
+             advance_char(lexer);  
+             advance_char(lexer); 
          } else {
              lexer_error(lexer, "Unterminated multi-line comment");
          }
@@ -156,7 +153,7 @@ static void skip_comments(Lexer *lexer) {
  }
  
 // Scan identifier or keyword
-static Token scan_identifier(Lexer *lexer) {
+ Token scan_identifier(Lexer *lexer) {
      Token token;
      int start_pos = lexer->position;
      int start_line = lexer->line;
@@ -166,13 +163,11 @@ static Token scan_identifier(Lexer *lexer) {
          advance_char(lexer);
      }
      
-     // Extract identifier text
      int length = lexer->position - start_pos;
      char *value = (char*)malloc(length + 1);
      strncpy(value, lexer->buffer + start_pos, length);
      value[length] = '\0';
      
-     // Check if this is a keyword
      token.type = TOKEN_IDENTIFIER;
      if (strcmp(value, "int") == 0) token.type = TOKEN_INT;
      else if (strcmp(value, "char") == 0) token.type = TOKEN_CHAR;
@@ -192,7 +187,7 @@ static Token scan_identifier(Lexer *lexer) {
  }
  
 // Scan numeric literal
-static Token scan_number(Lexer *lexer) {
+ Token scan_number(Lexer *lexer) {
      Token token;
      int start_pos = lexer->position;
      int start_line = lexer->line;
@@ -202,7 +197,6 @@ static Token scan_number(Lexer *lexer) {
          advance_char(lexer);
      }
      
-     // Extract number text
      int length = lexer->position - start_pos;
      char *value = (char*)malloc(length + 1);
      strncpy(value, lexer->buffer + start_pos, length);
@@ -218,16 +212,16 @@ static Token scan_number(Lexer *lexer) {
  }
  
 // Scan character literal
-static Token scan_character(Lexer *lexer) {
+ Token scan_character(Lexer *lexer) {
      Token token;
      int start_line = lexer->line;
      int start_col = lexer->column;
      
-     advance_char(lexer);  // Skip opening quote
+     advance_char(lexer); 
      
      char c;
      if (current_char(lexer) == '\\') {
-         advance_char(lexer);  // Skip backslash
+         advance_char(lexer); 
          switch (current_char(lexer)) {
              case 'n': c = '\n'; break;
              case 't': c = '\t'; break;
@@ -261,9 +255,8 @@ static Token scan_character(Lexer *lexer) {
          return token;
      }
      
-     advance_char(lexer);  // Skip closing quote
+     advance_char(lexer); 
      
-     // Create token
      char *value = (char*)malloc(2);
      value[0] = c;
      value[1] = '\0';
@@ -278,19 +271,19 @@ static Token scan_character(Lexer *lexer) {
  }
  
 // Scan string literal
-static Token scan_string(Lexer *lexer) {
+ Token scan_string(Lexer *lexer) {
      Token token;
      int start_line = lexer->line;
      int start_col = lexer->column;
      
-     advance_char(lexer);  // Skip opening quote
+     advance_char(lexer); 
      
      int start_pos = lexer->position;
      int length = 0;
      
      while (current_char(lexer) != '\"' && current_char(lexer) != '\0') {
          if (current_char(lexer) == '\\') {
-             advance_char(lexer);  // Skip backslash
+             advance_char(lexer); 
              if (current_char(lexer) == '\0') {
                  break;
              }
@@ -314,7 +307,7 @@ static Token scan_string(Lexer *lexer) {
      strncpy(value, lexer->buffer + start_pos, length);
      value[length] = '\0';
      
-     advance_char(lexer);  // Skip closing quote
+     advance_char(lexer);
      
      token.type = TOKEN_STRING;
      token.value = value;
@@ -331,7 +324,6 @@ Token get_token(Lexer *lexer) {
      
      skip_whitespace(lexer);
      
-     // Handle comments
      while (current_char(lexer) == '/' && 
             (peek_char(lexer) == '/' || peek_char(lexer) == '*')) {
          skip_comments(lexer);
@@ -341,7 +333,6 @@ Token get_token(Lexer *lexer) {
      int start_line = lexer->line;
      int start_col = lexer->column;
      
-     // EOF
      if (current_char(lexer) == '\0') {
          token.type = TOKEN_EOF;
          token.value = strdup("EOF");
@@ -577,9 +568,7 @@ void advance_token(Lexer *lexer) {
  
 // Peek at current token without consuming it
 Token peek_token(Lexer *lexer) {
-    if (lexer == NULL){
-        
-    }
+    if (lexer == NULL){}
     return lexer->current;
  }
  
